@@ -1,15 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { theme } from '../../styles/GlobalStyles';
 import { loadEffect } from '../common/animation';
-import RangeBarDaily from '../Chart/RangeBarDaily';
+import BarChart from '../Chart/BarChart';
 import LineChart from '../Chart/LineChart';
 import { TiArrowSortedDown } from 'react-icons/ti';
+
+// import { typedUseSelector } from '../../store';
 
 export default function HistoryContent() {
   const [dropDown, setDropDown] = useState('none');
   const [mode, setMode] = useState('Weekly');
   const [item, setItem] = useState('Monthly');
+
+  const user = JSON.parse(sessionStorage.getItem('user'));
+
+  // const user = typedUseSelector((state) => {
+  //   return state.auth.user;
+  // });
 
   const handleDropdown = () => {
     if (dropDown === '') {
@@ -37,8 +45,6 @@ export default function HistoryContent() {
     }
   };
 
-  useEffect(() => {}, [mode]);
-
   return (
     <Wrapper>
       <TitleWrapper>
@@ -49,9 +55,9 @@ export default function HistoryContent() {
         </Content>
       </TitleWrapper>
 
-      <p>
-        <RangeBarDaily className={'rangeBar'} />
-      </p>
+      <ChartWrapper>
+        <BarChart user={user} />
+      </ChartWrapper>
 
       <DropDownWrapper>
         <DropDown onClick={handleDropdown}>
@@ -62,7 +68,7 @@ export default function HistoryContent() {
           {item}
         </DropDownItem>
       </DropDownWrapper>
-      <LineChart mode={mode} />
+      <LineChart user={user} mode={mode} />
     </Wrapper>
   );
 }
@@ -73,10 +79,10 @@ const Wrapper = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: space-evenly;
+`;
 
-  & > p {
-    animation: 0.8s ease-in ${loadEffect.down};
-  }
+const ChartWrapper = styled.div`
+  animation: 0.8s ease-in ${loadEffect.down};
 `;
 
 const TitleWrapper = styled.div`

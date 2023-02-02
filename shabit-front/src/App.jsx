@@ -4,6 +4,7 @@ import { ThemeProvider } from 'styled-components';
 import { Routes, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from './store';
+import PrivateRoute from './utils/PrivateRoute';
 
 import LandingPage from './pages/LandingPage';
 import Introduction from './components/Landing/Introduction';
@@ -17,7 +18,9 @@ import MainContent from './components/Main/MainContent';
 import HistoryContent from './components/Main/HistoryContent';
 
 import PosturePage from './pages/PosturePage';
+import LiveContent from './components/Posture/LiveContent';
 import StretchContent from './components/Posture/StretchContent';
+import AdminPage from './pages/AdminPage';
 
 function App() {
   return (
@@ -28,28 +31,37 @@ function App() {
           <Route
             path="/"
             element={
-              <LandingPage children={[<Introduction />, <StartForm />]} />
+              <LandingPage content={<Introduction />} form={<StartForm />} />
             }
           />
           <Route
             path="login"
             element={
-              <LandingPage children={[<LandingContent />, <LoginForm />]} />
+              <LandingPage content={<LandingContent />} form={<LoginForm />} />
             }
           />
           <Route
             path="signup"
             element={
-              <LandingPage children={[<LandingContent />, <SignupForm />]} />
+              <LandingPage content={<LandingContent />} form={<SignupForm />} />
             }
           />
-          <Route path="/main" element={<MainPage />}>
+          <Route
+            path="/main"
+            element={<PrivateRoute component={<MainPage />} />}
+          >
             <Route path="" element={<MainContent />} />
             <Route path="history" element={<HistoryContent />} />
           </Route>
-          <Route path="/posture" element={<PosturePage />}>
+          <Route
+            path="/posture"
+            element={<PrivateRoute component={<PosturePage />} />}
+          >
+            <Route path="live" element={<LiveContent />} /> // live content로
+            들어가서 import 해주면 됨!
             <Route path="stretch" element={<StretchContent />} />
           </Route>
+          <Route path="/admin" element={<AdminPage />} />
         </Routes>
       </ThemeProvider>
     </Provider>
