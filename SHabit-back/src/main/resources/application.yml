@@ -39,6 +39,15 @@ spring:
       host: i8a601.p.ssafy.io
       port: 6379
 
+    # mongo db
+    mongodb:
+      host: localhost
+      port: 27017
+      authentication-database: admin
+      username: root
+      password: root
+      database: ssafy
+
 # S3 setting
 cloud:
   aws:
