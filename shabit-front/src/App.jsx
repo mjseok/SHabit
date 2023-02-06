@@ -22,6 +22,10 @@ import LiveContent from './components/Posture/LiveContent';
 import StretchContent from './components/Posture/StretchContent';
 import AdminPage from './pages/AdminPage';
 
+import NotFound404 from './components/common/NotFound404';
+
+import Redirect from './components/OAuth/Redirect';
+
 function App() {
   return (
     <Provider store={store}>
@@ -57,11 +61,12 @@ function App() {
             path="/posture"
             element={<PrivateRoute component={<PosturePage />} />}
           >
-            <Route path="live" element={<LiveContent />} /> // live content로
-            들어가서 import 해주면 됨!
+            <Route path="live" element={<LiveContent />} />
             <Route path="stretch" element={<StretchContent />} />
           </Route>
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="*" element={<NotFound404 />} />
+          <Route path="/oauth/redirect" element={<Redirect />} />
         </Routes>
       </ThemeProvider>
     </Provider>
