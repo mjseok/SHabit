@@ -1,30 +1,80 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { useDispatch, useSelector } from 'react-redux';
+import notify from '../../utils/notify';
+import { ImExit } from 'react-icons/im';
 import {
   CgTimer,
   CgSandClock,
   CgPlayPause,
   CgPlayButton,
 } from 'react-icons/cg';
-import { ImExit } from 'react-icons/im';
-import { useDispatch } from 'react-redux';
-import { setIsRunning } from '../../store/timeSlice';
-
-import { typedUseSelector } from '../../store';
+import { setIsRunning, setIsStop } from '../../store/timeSlice';
+import { setInitLogArray, setVideoModal } from '../../store/trackingSlice';
+import { setStretchModal } from '../../store/videoSlice';
+import { postData } from '../../services/stat/post';
 
 const Sidebar = () => {
   const [toggle, setToggle] = useState(true);
   const dispatch = useDispatch();
-  const usedTime = typedUseSelector((state) => {
+
+  const isRunning = useSelector((state) => {
+    return state.time.isRunning;
+  });
+  const stretchingMin = useSelector((state) => {
+    return state.time.stretchTime.min;
+  });
+  const stretchingSec = useSelector((state) => {
+    return state.time.stretchTime.sec;
+  });
+  const pose = useSelector((state) => {
+    return state.pose.pose;
+  });
+  const logArray = useSelector((state)=>{
+    return state.tracking.logArray;
+  });
+  const userEmail = useSelector((state)=>{
+    return state.auth.user.email;
+  })
+
+  useEffect(() => {
+    if (stretchingMin === 0 && stretchingSec === 0) {
+      notify(pose, 'stretching');
+      // stretching modal띄우기
+      dispatch(setStretchModal(false));
+      postData(userEmail,logArray).then(()=>{
+        setInitLogArray();
+      })
+      //timer 지우기 -> clearInterval()
+      dispatch(setIsStop(true));
+    }
+  }, [isRunning]);
+
+  const usedTime = useSelector((state) => {
     return `${state.time.usedTime.hour}:${state.time.usedTime.min}`;
   });
-  const stretchingTime = typedUseSelector((state) => {
-    return `${state.time.stretchTime.min}:${state.time.stretchTime.sec}`;
-  });
-  const ClickPlayButton = () => {
-    dispatch(setIsRunning());
+
+  const stretchingTime = `${stretchingMin}:${stretchingSec}`;
+
+  const clickStop = () => {
+    // 시간 같은거 모두 정지
+    dispatch(setIsStop(true));
+    dispatch(setIsRunning(false));
+    // 모달 띄워서 내 모습 play + download
+    dispatch(setVideoModal(true));
+    // TODO api날리기 stat post
+    postData(userEmail,logArray).then(()=>{
+      setInitLogArray();
+    })
+  };
+  const clickPlayButton = () => {
+    dispatch(setIsRunning(true));
     setToggle(!toggle);
   };
+  const clickPauseButton = () =>{
+    dispatch(setIsRunning(false));
+    setToggle(!toggle);
+  }
   return (
     <ContainerWrapper>
       <TimeContainer>
@@ -42,17 +92,17 @@ const Sidebar = () => {
       <CapturingContainer>
         {toggle ? (
           <IconWrapper>
-            <CgPlayPause onClick={ClickPlayButton} />
+            <CgPlayPause onClick={clickPauseButton} />
             <Text>일시정지</Text>
           </IconWrapper>
         ) : (
           <IconWrapper>
-            <CgPlayButton onClick={ClickPlayButton} />
+            <CgPlayButton onClick={clickPlayButton} />
             <Text>시작</Text>
           </IconWrapper>
         )}
         <IconWrapper>
-          <ImExit />
+          <ImExit onClick={clickStop} />
           <Text>종료하기</Text>
         </IconWrapper>
       </CapturingContainer>
@@ -88,4 +138,3 @@ const Text = styled.div`
   font-size: 0.9rem;
   margin: 0.1rem 0;
 `;
-// TODO: 고쳐야됨
